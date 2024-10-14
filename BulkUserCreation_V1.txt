@@ -1,0 +1,25 @@
+Import-Module AzureAD
+Connect-AzureAD
+$csvPath = "file path for the archive"
+$users = Import-Csv -Path $csvPath
+foreach ($user in $users) {
+    try {
+      
+        New-AzureADUser -DisplayName $user.DisplayName `
+                        -UserPrincipalName $user.UPN `
+                        -MailNickname ($user.UPN.Split('@')[0]) `
+                        -AccountEnabled $true `
+                        -PasswordProfile @{ Password = "Any Password you want to"; ForceChangePasswordNextLogIn = $true } `
+                        -JobTitle $user.JobTitle `
+                        -Department $user.Department `
+                        -City $user.City `
+                        -OfficeLocation $user.OfficeLocation `
+                        -UsageLocation "BR"
+
+        Write-Host "User $($user.DisplayName) created."
+    } catch {
+        Write-Host "Error to create the user $($user.DisplayName): $_"
+    }
+}
+
+Disconnect-AzureAD
